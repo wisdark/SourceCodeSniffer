@@ -5,15 +5,15 @@
 #
 # Contact information:
 # Austin Scott
-#
+# e
 
 
 """
 Main application logic and automation functions
 """
 
-__version__ = '0.1'
-__lastupdated__ = 'April 11, 2017'
+__version__ = '0.2'
+__lastupdated__ = 'October 16, 2017'
 
 ###
 # Imports
@@ -194,15 +194,15 @@ class SourceCodeSnifferMain:
         self._task_start_time = time.clock()
         self._column_width = 60
         self._compare_filename = "REPORT_Baseline_Compare_Results.txt"
-        self._config_files = ["Default.ini","ASP.ini", "CSharp.ini"]
+        self._config_files = ["Default.ini","ASP.ini", "CSharp.ini", "Java.ini", "VBScript.ini"]
         self._ignore_files = (".html", ".js", "robots.txt")
         self._path_to_scan = "."
         self._report_filename = "REPORT.txt"
         self._report_timer_filename = "REPORT_TIMES.txt"
         self._remove_line_words = ['time', 'elapsed', 'Compare', 'BlkIo', 'Variable issues', 'Variable ConOut']
-        self._summaryReportIssuesByFile = []
-        self._summaryReportHighestRiskLevel = []
-        self._summaryReportTimer = []
+        self._summaryReportIssuesByFile = {}
+        self._summaryReportHighestRiskLevel = {}
+        self._summaryReportTimer = {}
         self._summaryRiskTotal = 0
         self._summaryCount = 0
 
@@ -219,7 +219,7 @@ class SourceCodeSnifferMain:
         """
         Prints banner
         """
-        print(Colored.red("  Source Code Sniffer Version: " + __version__ + " Updated: " + __lastupdated__))
+        print(Colored.red("  Source Code Sniffer Version: " + __version__ + " Updated: " + __lastupdated__) + (" (-h for help)"))
 
     def usage(self):
         print "\n- Command Line Usage\n\t``# %.65s [options]``\n" % sys.argv[0]
@@ -269,12 +269,12 @@ class SourceCodeSnifferMain:
 
     def sourceCodeSniffFolder(self):
         # Generate Validation Data Dumps
-        print(Colored.red("Sniffing for dangerous code..."))
         for root, subdirs, files in os.walk(os.path.normpath(self._path_to_scan)):
             logger().verbose('--\nroot = ' + root)
             for subdir in subdirs:
                 logger().verbose('\t- subdirectory ' + subdir)
-            for filename in files:
+                print Colored.white("Scanning folder: "+subdir)
+            for filename in bar(files):
                 file_path = os.path.join(root, filename)
                 logger().debug('\t- file %s (full path: %s)' % (filename, file_path))
                 if not file_path.lower().endswith(self._ignore_files):
@@ -282,22 +282,21 @@ class SourceCodeSnifferMain:
 
     def sourceCodeSniffFile(self, file_path):
         filename_has_been_shown = False
+        self._summaryReportIssuesByFile[file_path] = 0
+        self._summaryReportHighestRiskLevel[file_path] = 0
         logger().verbose("\t\t- Sniffing a file: %s" % file_path)
-        for each_section in bar(self.config.sections()):
+        for each_section in self.config.sections():
             logger().verbose("\t\t\t- " + each_section.__str__())
             pattern = re.compile(self.config.get(each_section, 'Regex'), re.IGNORECASE)
             for i, line in enumerate(open(file_path)):
                 for match in re.finditer(pattern, line):
-                    if filename_has_been_shown == False:
-                        print file_path
-                        filename_has_been_shown = True
                     logger().debug('\t-Found %s on line %s: %s' % (self.config.get(each_section, 'Message'), i + 1 , match.groups()))
                     logger().verbose(line)
-                    self._summaryRiskTotal += self.config.get(each_section, 'RiskLevel')
+                    self._summaryRiskTotal += int(self.config.get(each_section, 'RiskLevel'))
                     self._summaryCount += 1
                     self._summaryReportIssuesByFile[file_path] += 1
-                    if self._summaryReportHighestRiskLevel[file_path] < self.config.get(each_section, 'RiskLevel'):
-                        self._summaryReportHighestRiskLevel[file_path] = self.config.get(each_section, 'RiskLevel')
+                    if self._summaryReportHighestRiskLevel[file_path] < int(self.config.get(each_section, 'RiskLevel')):
+                        self._summaryReportHighestRiskLevel[file_path] = int(self.config.get(each_section, 'RiskLevel'))
 
 
     ##################################################################################
@@ -306,9 +305,9 @@ class SourceCodeSnifferMain:
 
     def main(self):
         self.print_banner()
-        print(Colored.red("Using configuration files: " + str(self._config_files)))
-        print(Colored.red("Recursively sniffing path for dangerous code: " + self._path_to_scan))
-        sys.stderr = open("errorlog.txt", 'w')
+        print(Colored.blue("Using configuration files: " + str(self._config_files)))
+        print(Colored.blue("Recursively sniffing path for dangerous code: " + self._path_to_scan))
+        #sys.stderr = open("errorlog.txt", 'w')
         # load config
         self.config = ConfigParser.ConfigParser()
         self.config.read(self._config_files)
@@ -317,6 +316,24 @@ class SourceCodeSnifferMain:
             os.remove(self._report_filename)
 
         self.sourceCodeSniffFolder()
+
+        issueCount = sorted(self._summaryReportIssuesByFile.iteritems(), key=lambda x: int(x[1]))
+        highestRiskScore = sorted(self._summaryReportHighestRiskLevel.iteritems(), key=lambda x: int(x[1]))
+
+        print (Colored.blue("Files sorted by potential risk level:"))
+        print "{:<4} {:<70}".format('Risk','File Path')
+        for k, v in highestRiskScore:
+            if v >= 3: print Colored.red("{:<4} {:<70}".format(v, k))
+            elif v == 2: print Colored.yellow("{:<4} {:<70}".format(v, k))
+            elif v == 1: print Colored.green("{:<4} {:<70}".format(v, k))
+            else: print Colored.blue("{:<4} {:<70}".format(v, k))
+
+        print Colored.blue("")
+        print "Files sorted by number of potential issues:"
+        print "{:<4} {:<70}".format('Issues','File Path')
+        for k, v in issueCount:
+            print "{:<4} {:<70}".format(v, k)
+
         sys.exit(0)
         return 0
 
