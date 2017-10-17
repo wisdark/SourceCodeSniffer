@@ -288,7 +288,13 @@ class SourceCodeSnifferMain:
         for each_section in self.config.sections():
             logger().verbose("\t\t\t- " + each_section.__str__())
             pattern = re.compile(self.config.get(each_section, 'Regex'), re.IGNORECASE)
-            for i, line in enumerate(open(file_path)):
+            try:
+                filetosniff = open(file_path)
+            except:
+                logger().debug("Error accessing file: "+file_path)
+                return
+            
+            for i, line in enumerate(filetosniff):
                 for match in re.finditer(pattern, line):
                     logger().debug('\t-Found %s on line %s: %s' % (self.config.get(each_section, 'Message'), i + 1 , match.groups()))
                     logger().verbose(line)
