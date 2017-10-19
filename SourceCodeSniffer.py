@@ -295,7 +295,6 @@ class SourceCodeSnifferMain:
             except:
                 logger().debug("Error accessing file: "+file_path)
                 return
-
             for i, line in enumerate(filetosniff):
                 for match in re.finditer(pattern, line):
                     logger().debug('\t-Found %s on line %s: %s' % (self.config.get(each_section, 'Message'), i + 1 , match.groups()))
