@@ -5,22 +5,22 @@ Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux
 
 
 ## Static Code Analysis Features and Languages
-|Language   |SQL Injection|LFI/RFI |XSS     |File Traversal|File Uploads|Hard-coded Secrets|Command Injection|LDAP Injection|
-|----------:|------------:|-------:|-------:|-------------:|-----------:|-----------------:|----------------:|-------------:|
-|PHP        |             |        |        |              |            |                  |                 |              |
-|Python     |             |        |        |              |            |                  |                 |              |
-|Node.js    |             |        |        |              |            |                  |                 |              |
-|GO         |             |        |        |              |            |                  |                 |              | 
-|ASP Classic| &#10004;    |&#10004;|&#10004;|              |            |                  |    &#10004;     |              | 
-|C#         | &#10004;    |        |&#10004;|              |            |  &#10004;        |    &#10004;     |              | 
-|JAVA       | &#10004;    |&#10004;|&#10004;|              |            |                  |    &#10004;     |              |     
-|VisualBasic|             |        |&#10004;|              |            |                  |                 |              |   
-|Ruby       |             |        |        |              |            |                  |                 |              |        
-|Ruby       |             |        |        |              |            |                  |                 |              |        
-|Perl       |             |        |        |              |            |                  |                 |              |       
-|HTML       |             |        |        |              |            |                  |                 |              |      
-|HTML5      |             |        |        |              |            |                  |                 |              |  
-|VBScript   |             |        |        |              |            |                  |                 |              |  
+|Language   |SQL Injection|LFI/RFI |XSS|File Traversal|File Uploads|XML Injection|JSON Injection|Command Injection|LDAP Injection|
+|----------:|------------:|-------:|--:|-------------:|-----------:|------------:|-------------:|--------------:|-------------:|
+|PHP        |             |        |   |              |            |             |              |               |              |
+|Python     |             |        |   |              |            |             |              |               |              |
+|Node.js    |             |        |   |              |            |             |              |               |              |
+|GO         |             |        |   |              |            |             |              |               |              |
+|ASP Classic| &#10004;    |&#10004;|   |              |            |             |              |               |              |
+|ASP.NET    | &#10004;    |        |   |              |            |             |              |               |              |
+|JAVA       |             |        |   |              |            |             |              |               |              |
+|JavaScript |             |        |   |              |            |             |              |               |              |
+|Ruby       |             |        |   |              |            |             |              |               |              |
+|Ruby       |             |        |   |              |            |             |              |               |              |
+|Perl       |             |        |   |              |            |             |              |               |              |
+|HTML       |             |        |   |              |            |             |              |               |              |
+|HTML5      |             |        |   |              |            |             |              |               |              |
+|VBScript   |             |        |   |              |            |             |              |               |              |
 
 ##Syntax help
 ```
