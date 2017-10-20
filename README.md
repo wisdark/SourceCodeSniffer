@@ -1,8 +1,7 @@
 # SourceCodeSniffer
-The Source Code Sniffer is a poor man’s static code analysis tool (SCA) designed to highlight high risk functions (Injection, LFI/RFI, file uploads etc) across multiple web application development languages (ASP, Java, CSharp, PHP, Perl, Python, JavaScript, HTML etc) in a highly configurable manner.
+The Source Code Sniffer is a poor man’s static code analysis tool (SCA) based on regular expressions. The Source Code Sniffer uses search patterns to score common high risk functions (Injection, LFI/RFI, file uploads etc) across multiple application development languages (C#, Java, PHP, Perl, Python, JavaScript, HTML etc) in a highly configurable manner. When performing a source code review, it can help to prioritize the code files that should be reviewed. 
+
 Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux.
-
-
 
 ## Static Code Analysis Features and Languages
 |Language   |SQL Injection|LFI/RFI |XSS     |File Traversal|File Uploads|Hard-coded Secrets|Command Injection|LDAP Injection|
@@ -16,11 +15,8 @@ Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux
 |JAVA       | &#10004;    |&#10004;|&#10004;|              |            |                  |    &#10004;     |              |     
 |VisualBasic|             |        |&#10004;|              |            |                  |                 |              |   
 |Ruby       |             |        |        |              |            |                  |                 |              |        
-|Ruby       |             |        |        |              |            |                  |                 |              |        
 |Perl       |             |        |        |              |            |                  |                 |              |       
 |HTML       |             |        |        |              |            |                  |                 |              |      
-|HTML5      |             |        |        |              |            |                  |                 |              |  
-|VBScript   |             |        |        |              |            |                  |                 |              |  
 
 ##Syntax help
 ```
