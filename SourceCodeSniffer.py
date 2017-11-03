@@ -14,8 +14,8 @@
 Main application logic and automation functions
 """
 
-__version__ = '0.2'
-__lastupdated__ = 'October 16, 2017'
+__version__ = '0.3'
+__lastupdated__ = 'October 31, 2017'
 
 ###
 # Imports
@@ -25,6 +25,8 @@ import sys
 import time
 import re
 import ConfigParser
+import itertools
+from string import Template
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -195,18 +197,25 @@ class SourceCodeSnifferMain:
         self._start_time = time.clock()
         self._task_start_time = time.clock()
         self._column_width = 60
-        self._compare_filename = "REPORT_Baseline_Compare_Results.txt"
+        self._sample_code_lines = 3
         self._config_files = ["Default.ini","ASP.ini", "CSharp.ini", "Java.ini", "VBScript.ini"]
         self._ignore_files = (".html", ".js", "robots.txt")
         self._path_to_scan = "."
-        self._report_filename = "REPORT.txt"
-        self._report_timer_filename = "REPORT_TIMES.txt"
-        self._remove_line_words = ['time', 'elapsed', 'Compare', 'BlkIo', 'Variable issues', 'Variable ConOut']
+        self._html_report_filename = "HTML_REPORT.htm"
+        self._checklist_report_filename = "CHECKLIST_REPORT.htm"
         self._summaryReportIssuesByFile = {}
         self._summaryReportHighestRiskLevel = {}
+        self._summaryReportSourceCodeReviewCheckList = []
+        self._summaryHTMLReport = []
         self._summaryReportTimer = {}
         self._summaryRiskTotal = 0
         self._summaryCount = 0
+
+        # Load HTML Template Data
+        self._html_template_report = ""
+        self._html_template_header = ""
+        self._html_template_footer = ""
+        self.loadTemplateData()
 
         # parse arguments
         self.parse_args()
@@ -283,10 +292,12 @@ class SourceCodeSnifferMain:
                     self.sourceCodeSniffFile(file_path)
 
     def sourceCodeSniffFile(self, file_path):
+        file_report_html = ""
         filename_has_been_shown = False
         self._summaryReportIssuesByFile[file_path] = 0
         self._summaryReportHighestRiskLevel[file_path] = 0
         logger().verbose("\t\t- Sniffing a file: %s" % file_path)
+        self._summaryHTMLReport.append(file_path)
         for each_section in self.config.sections():
             logger().verbose("\t\t\t- " + each_section.__str__())
             pattern = re.compile(self.config.get(each_section, 'Regex'), re.IGNORECASE)
@@ -295,12 +306,44 @@ class SourceCodeSnifferMain:
             except:
                 logger().debug("Error accessing file: "+file_path)
                 return
-            for i, line in enumerate(filetosniff):
+            for line_num, line in enumerate(filetosniff):
                 for match in re.finditer(pattern, line):
-                    logger().debug('\t-Found %s on line %s: %s' % (self.config.get(each_section, 'Message'), i + 1 , match.groups()))
+                    logger().debug('\t-Found %s on line %s: %s' % (self.config.get(each_section, 'Message'), line_num + 1 , match.groups()))
                     logger().verbose(line)
+
                     self._summaryRiskTotal += int(self.config.get(each_section, 'RiskLevel'))
                     self._summaryCount += 1
+                    self._summaryReportSourceCodeReviewCheckList.append(self.config.get(each_section, 'Action'))
+
+                    code_sample = ""
+                    #if line_num > self._sample_code_lines:
+                    #    for sample in itertools.islice(filetosniff, line_num-self._sample_code_lines, line_num+self._sample_code_lines):
+                    #        code_sample += sample
+                    #else:
+                    #    code_sample = line
+
+                    code_sample = line
+
+                    references = ""
+                    ref_list = self.config.get(each_section, 'References').split(",")
+                    for ref in ref_list:
+                        references += "\t\t\t\t<a href='"+ref+"'>"+ref+"</a><br>\n"
+
+                    template_dict = dict()
+                    template_dict["Title"] = self.config.get(each_section, 'Title')
+                    template_dict["CWE"] = self.config.get(each_section, 'CWE')
+                    template_dict["LineNumber"] = line_num+1
+                    template_dict["Confidence"] = self.config.get(each_section, 'Confidence')
+                    template_dict["RiskLevel"] = self.config.get(each_section, 'RiskLevel')
+                    template_dict["Message"] = self.config.get(each_section, 'Message')
+                    template_dict["Action"] = self.config.get(each_section, 'Action')
+                    template_dict["CodeSample"] = code_sample
+                    template_dict["Explanation"] = self.config.get(each_section, 'Explanation')
+                    template_dict["References"] = references
+
+                    file_report_html += Template(self._html_template_report).substitute(template_dict)
+                    self._summaryHTMLReport.append(file_report_html)
+
                     self._summaryReportIssuesByFile[file_path] += 1
                     if self._summaryReportHighestRiskLevel[file_path] < int(self.config.get(each_section, 'RiskLevel')):
                         self._summaryReportHighestRiskLevel[file_path] = int(self.config.get(each_section, 'RiskLevel'))
@@ -318,14 +361,24 @@ class SourceCodeSnifferMain:
         # load config
         self.config = ConfigParser.ConfigParser()
         self.config.read(self._config_files)
-        # remove previous report
-        if os.path.isfile(self._report_filename):
-            os.remove(self._report_filename)
 
         self.sourceCodeSniffFolder()
 
         issueCount = sorted(self._summaryReportIssuesByFile.iteritems(), key=lambda x: int(x[1]))
         highestRiskScore = sorted(self._summaryReportHighestRiskLevel.iteritems(), key=lambda x: int(x[1]))
+
+        # Write HTML Report
+        file = open(self._html_report_filename, 'w')
+        file.write(self._html_template_header)
+        for issue in self._summaryHTMLReport:
+            file.write(issue)
+        file.write(self._html_template_footer)
+
+        # Write Checklist Report
+        file = open(self._checklist_report_filename, 'w')
+        for checklist in self._summaryReportSourceCodeReviewCheckList:
+            file.write(issue)
+
 
         print (Colored.blue("Files sorted by potential risk level:"))
         print "{:<4} {:<70}".format('Risk','File Path')
@@ -344,6 +397,298 @@ class SourceCodeSnifferMain:
         sys.exit(0)
         return 0
 
+    def loadTemplateData(self):
+        self._html_template_report = """                    
+        <div class='summary-report'>
+        	<h3>$Title</h3>
+        	<table class='summary-table'>
+        		<thead>
+        		<th>CWE</th>
+        		<th>Line #</th>
+        		<th>Confidence</th>
+        		<th>Risk Level</th>
+        		</thead>
+        		<tbody>
+        		<tr>
+        			<td>$CWE</td>
+        			<td>$LineNumber</td>
+        			<td>$Confidence</td>
+        			<td>$RiskLevel</td>
+        		</tr>
+        		</tbody>
+        	</table>
+        </div>
+        <tr>
+        	<td colspan='10'>
+        		<div class='problem-description'>
+        			<div class='problem-header'>$Message</div>
+        			<div class='problem-list'>
+        			    $Action
+        			</div>
+        		</div>
+        	</td>
+        </tr>
+        <pre>
+        $CodeSample
+        </pre>
+        <table class='features-table'>
+        <tbody>
+        <tr>
+        <tr>
+        	<td colspan='10'>
+        		<div class='feature-description' id='1'>
+        		<span>
+        		$Explanation
+        		</span>
+        		<span>
+        		<b><i>References:</b><i>
+        		$References
+        		</span>
+        		</div>
+        	</td>
+        </tr>
+        </table>
+        """
+
+        self._html_template_header = """
+<html>
+<head>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'></meta>
+	<style>
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 300;
+}
+
+h2 {
+  font-weight: 400;
+}
+
+h3 {
+  font-weight: 200;
+}
+
+table {
+  margin: 5px;
+}
+
+div.date-test-ran {
+  font-size: small;
+  font-style: italic;
+}
+
+table.features-table {
+  width: 800px;
+}
+
+table.summary-table {
+  width: 800px;
+  text-align: left;
+  font-weight: bold;
+  font-size: small;
+}
+
+table.summary-table th {
+  background: lightblue;
+  padding: 6px;
+}
+
+table.summary-table td {
+  background: #E0E0E0;
+  padding: 6px;
+}
+
+pre.title {
+  font-family: inherit;
+  font-size: 24px;
+  line-height: 28px;
+  letter-spacing: -1px;
+  color: #333;
+}
+
+pre.narrative {
+  font-family: inherit;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 23px;
+  letter-spacing: -1px;
+  color: #333;
+}
+
+.feature-description {
+  font-size: large;
+  background: lightblue;
+  padding: 12px;
+}
+
+.feature-toc-error {
+  color: #F89A4F;
+}
+
+.feature-toc-failure {
+  color: #FF8080;
+}
+
+.feature-toc-ignored {
+  color: lightgray;
+}
+
+.feature-toc-pass {
+  color: green;
+}
+
+.feature-description.error {
+  background: #F89A4F;
+}
+
+.feature-description.failure {
+  background: #FF8080;
+}
+
+.feature-description.ignored {
+  background: lightgray;
+}
+
+.feature-description.ignored .reason {
+  color: black;
+  font-style: italic;
+  font-size: small;
+}
+
+div.issues {
+  margin-top: 6px;
+  padding: 10px 5px 5px 5px;
+  background-color: lemonchiffon;
+  color: black;
+  font-weight: 500;
+  font-size: small;
+  max-width: 50%;
+}
+
+div.pending-feature {
+  background-color: dodgerblue;
+  color: white;
+  margin-top: 6px;
+  padding: 5px;
+  text-align: center;
+  font-size: small;
+  max-width: 120px;
+}
+
+div.problem-description {
+  padding: 10px;
+  background: pink;
+  border-radius: 10px;
+}
+
+div.problem-header {
+  font-weight: bold;
+  color: red;
+}
+
+div.problem-list {
+
+}
+
+table.ex-table th {
+  background: lightblue;
+  padding: 0px 5px 0px 5px;
+}
+
+table.ex-table td {
+  background: #E0E0E0;
+  padding: 0px 5px 0px 5px;
+}
+
+table td {
+  min-width: 50px;
+}
+
+col.block-kind-col {
+  width: 70px;
+}
+
+span.spec-header {
+  font-weight: bold;
+}
+
+div.spec-text {
+  /*color: green;*/
+}
+
+div.spec-status {
+  font-style: italic;
+}
+
+.ignored {
+  color: gray;
+}
+
+td.ex-result {
+  text-align: center;
+  background: white !important;
+}
+
+.ex-pass {
+  color: darkgreen;
+}
+
+.ex-fail {
+  color: red;
+  font-weight: bold;
+}
+
+div.block-kind {
+  margin: 2px;
+  font-style: italic;
+}
+
+div.block-text {
+
+}
+
+pre.block-source {
+  background-color: whitesmoke;
+  padding: 10px;
+}
+
+pre.block-source.error {
+  background-color: pink;
+  color: red;
+  font-weight: bold;
+}
+
+pre.block-source.pre-error {
+  
+}
+
+pre.block-source.before-error {
+  margin-bottom: -14px;
+}
+
+pre.block-source.after-error {
+  color: gray;
+  margin-top: -14px;
+}
+
+pre.block-source.post-error {
+  color: gray;
+}
+
+div.footer {
+  text-align: center;
+  font-size: small;
+}
+</head>
+<body>
+<h2>Report for ${classOnTest}</h2>
+<hr></hr>
+"""
+
+        self._html_template_footer = """
+    </body>
+    </html>
+"""
 
 def bar(it, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR, expected_size=None,
         every=1):
