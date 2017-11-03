@@ -297,7 +297,7 @@ class SourceCodeSnifferMain:
         self._summaryReportIssuesByFile[file_path] = 0
         self._summaryReportHighestRiskLevel[file_path] = 0
         logger().verbose("\t\t- Sniffing a file: %s" % file_path)
-        self._summaryHTMLReport.append(file_path)
+        self._summaryHTMLReport.append("<h1>"+file_path+"</h1>")
         for each_section in self.config.sections():
             logger().verbose("\t\t\t- " + each_section.__str__())
             pattern = re.compile(self.config.get(each_section, 'Regex'), re.IGNORECASE)
@@ -679,9 +679,10 @@ div.footer {
   text-align: center;
   font-size: small;
 }
+</style>
 </head>
 <body>
-<h2>Report for ${classOnTest}</h2>
+<h1>Source Code Sniffer HTML Report</h1>
 <hr></hr>
 """
 
