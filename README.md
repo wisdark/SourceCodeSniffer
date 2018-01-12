@@ -6,7 +6,7 @@ Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux
 ## Static Code Analysis Features and Languages
 |Language   |SQL Injection|LFI/RFI |XSS     |File Traversal|File Uploads|Hard-coded Secrets|Command Injection|LDAP Injection|
 |----------:|------------:|-------:|-------:|-------------:|-----------:|-----------------:|----------------:|-------------:|
-|PHP        |             |        |        |              |            |                  |                 |              |
+|PHP        |             |        |        |              |            |                  |    &#10004;     |              |
 |Python     |             |        |        |              |            |                  |                 |              |
 |Node.js    |             |        |        |              |            |                  |                 |              |
 |GO         |             |        |        |              |            |                  |                 |              | 
