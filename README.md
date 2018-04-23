@@ -4,7 +4,7 @@ The Source Code Sniffer is a poor man’s static code analysis tool (SCA) based 
 Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux.
 
 ## Static Code Analysis Features and Languages
-|Language   |SQL Injection|LFI/RFI |XSS     |File Traversal|File Uploads|Hard-coded Secrets|Command Injection|LDAP Injection|
+|Language   |SQL Injection|LFI/RFI |XSS     |File Traversal|File Uploads|Hard-coded Secrets|Command Injection|Buffer Overflow|
 |----------:|------------:|-------:|-------:|-------------:|-----------:|-----------------:|----------------:|-------------:|
 |PHP        |             |        |        |              |            |                  |    &#10004;     |              |
 |Python     |             |        |        |              |            |                  |                 |              |
@@ -15,9 +15,8 @@ Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux
 |JAVA       | &#10004;    |&#10004;|&#10004;|              |            |                  |    &#10004;     |              |     
 |VisualBasic|             |        |&#10004;|              |            |                  |                 |              |   
 |Ruby       |             |        |        |              |            |                  |                 |              |        
-|Perl       |             |        |        |              |            |                  |                 |              |       
-|HTML       |             |        |        |              |            |                  |                 |              |      
-
+|Perl       |             |        |        |              |            |                  |                 |              |          
+|C          |             |        |        |              |            |                  |                 |   &#10004;   | 
 ##Syntax help
 ```
 python SourceCodeSniffer.py -h
