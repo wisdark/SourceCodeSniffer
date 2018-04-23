@@ -1,5 +1,5 @@
 # SourceCodeSniffer
-The Source Code Sniffer is a poor man’s static code analysis tool (SCA) based on regular expressions. The Source Code Sniffer uses search patterns to score common high risk functions (Injection, LFI/RFI, file uploads etc) across multiple application development languages (C#, Java, PHP, Perl, Python, JavaScript, HTML etc) in a highly configurable manner. When performing a source code review, it can help to prioritize the code files that should be reviewed. 
+The Source Code Sniffer is a poor man’s static code analysis tool (SCA) based on regular expressions. The Source Code Sniffer uses search patterns to score common high risk functions (Injection, LFI/RFI, file uploads etc) across multiple application development languages (C#, C/C++,Java, PHP, Perl, Python, JavaScript, HTML etc) in a highly configurable manner. When performing a source code review, it can help to prioritize the code files that should be reviewed. 
 
 Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux.
 
@@ -16,7 +16,7 @@ Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux
 |VisualBasic|             |        |&#10004;|              |            |                  |                 |              |   
 |Ruby       |             |        |        |              |            |                  |                 |              |        
 |Perl       |             |        |        |              |            |                  |                 |              |          
-|C          |             |        |        |              |            |                  |                 |   &#10004;   | 
+|C/C++      |             |        |        |              |            |                  |                 |   &#10004;   | 
 
 
 ##Syntax help
