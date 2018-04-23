@@ -8,14 +8,14 @@
 #
 
 # TODO: Detect when we see a SQL query code in a c# function without the sqlCmd.Parameters. or @parameter names or new SqlParameter
-
+# TODO: Fix reporting - not really working at the moment.
 
 """
 Main application logic and automation functions
 """
 
-__version__ = '0.3'
-__lastupdated__ = 'October 31, 2017'
+__version__ = '0.4'
+__lastupdated__ = 'May 23, 2018'
 
 ###
 # Imports
@@ -198,7 +198,7 @@ class SourceCodeSnifferMain:
         self._task_start_time = time.clock()
         self._column_width = 60
         self._sample_code_lines = 3
-        self._config_files = ["Default.ini","ASP.ini", "CSharp.ini", "Java.ini", "VBScript.ini"]
+        self._config_files = ["Default.ini","ASP.ini", "CSharp.ini", "Java.ini", "VBScript.ini", "C.ini"]
         self._ignore_files = (".html", ".js", "robots.txt")
         self._path_to_scan = "."
         self._html_report_filename = "HTML_REPORT.htm"
