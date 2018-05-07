@@ -199,7 +199,7 @@ class SourceCodeSnifferMain:
         self._column_width = 60
         self._sample_code_lines = 3
         self._config_files = ["Default.ini","ASP.ini", "CSharp.ini", "Java.ini", "VBScript.ini", "C.ini"]
-        self._ignore_files = (".html", ".js", "robots.txt")
+        self._ignore_files = (".html", "robots.txt")
         self._path_to_scan = "."
         self._html_report_filename = "HTML_REPORT.htm"
         self._checklist_report_filename = "CHECKLIST_REPORT.htm"
