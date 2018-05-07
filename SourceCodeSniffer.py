@@ -14,8 +14,8 @@
 Main application logic and automation functions
 """
 
-__version__ = '0.4'
-__lastupdated__ = 'May 23, 2018'
+__version__ = '0.5'
+__lastupdated__ = 'May 7, 2018'
 
 ###
 # Imports
@@ -300,6 +300,7 @@ class SourceCodeSnifferMain:
         self._summaryHTMLReport.append("<h1>"+file_path+"</h1>")
         for each_section in self.config.sections():
             logger().verbose("\t\t\t- " + each_section.__str__())
+            #print self.config.get(each_section, 'Regex')
             pattern = re.compile(self.config.get(each_section, 'Regex'), re.IGNORECASE)
             try:
                 filetosniff = open(file_path)
