@@ -16,7 +16,7 @@ Source Code Sniffer is written in Python 2.7 and supports both Windows and Linux
 |VisualBasic|             |        |&#10004;|              |            |                  |                 |              |   
 |Ruby       |             |        |        |              |            |                  |                 |              |        
 |Perl       |             |        |        |              |            |                  |                 |              |          
-|C/C++      |             |        |        |              |            |                  |                 |   &#10004;   | 
+|C/C++      |             |        |        |              |            |                  |    &#10004;     |   &#10004;   | 
 
 
 ##Syntax help
