@@ -14,8 +14,8 @@
 Main application logic and automation functions
 """
 
-__version__ = '0.5'
-__lastupdated__ = 'May 7, 2018'
+__version__ = '0.6'
+__lastupdated__ = 'June 12, 2018'
 
 ###
 # Imports
@@ -210,6 +210,7 @@ class SourceCodeSnifferMain:
         self._summaryReportTimer = {}
         self._summaryRiskTotal = 0
         self._summaryCount = 0
+        self._html_report = False
 
         # Load HTML Template Data
         self._html_template_report = ""
@@ -243,6 +244,7 @@ class SourceCodeSnifferMain:
         print "-i --ignoreFiles        specify files to not scan (default=" + str(self._ignore_files) + ")"
         print "                        ignored files and file types should be comma separated "
         print "-v --verbose            verbose mode"
+        print "-h --htmlReport         generate an html report (experimental)"
         print "-d --debug              show debug output"
         print "-l --log                output to log file"
         print "====================== =============================================================="
@@ -267,6 +269,8 @@ class SourceCodeSnifferMain:
                 logger.DEBUG = True
             elif o in ("-c", "--configFiles"):
                 self._config_files = a.split(',')
+            elif o in ("-h", "--htmlReport"):
+                self._html_report = True
             elif o in ("-i", "--ignoreFiles"):
                 self._ignore_files = tuple(a.split(','))
             elif o in ("-h", "--help"):
@@ -342,8 +346,9 @@ class SourceCodeSnifferMain:
                     template_dict["Explanation"] = self.config.get(each_section, 'Explanation')
                     template_dict["References"] = references
 
-                    file_report_html += Template(self._html_template_report).substitute(template_dict)
-                    self._summaryHTMLReport.append(file_report_html)
+                    if self._html_report:
+                        file_report_html += Template(self._html_template_report).substitute(template_dict)
+                        self._summaryHTMLReport.append(file_report_html)
 
                     self._summaryReportIssuesByFile[file_path] += 1
                     if self._summaryReportHighestRiskLevel[file_path] < int(self.config.get(each_section, 'RiskLevel')):
@@ -369,16 +374,17 @@ class SourceCodeSnifferMain:
         highestRiskScore = sorted(self._summaryReportHighestRiskLevel.iteritems(), key=lambda x: int(x[1]))
 
         # Write HTML Report
-        file = open(self._html_report_filename, 'w')
-        file.write(self._html_template_header)
-        for issue in self._summaryHTMLReport:
-            file.write(issue)
-        file.write(self._html_template_footer)
+        if self._html_report:
+            file = open(self._html_report_filename, 'w')
+            file.write(self._html_template_header)
+            for issue in self._summaryHTMLReport:
+                file.write(issue)
+            file.write(self._html_template_footer)
 
         # Write Checklist Report
         file = open(self._checklist_report_filename, 'w')
         for checklist in self._summaryReportSourceCodeReviewCheckList:
-            file.write(issue)
+            file.write(checklist)
 
 
         print (Colored.blue("Files sorted by potential risk level:"))
